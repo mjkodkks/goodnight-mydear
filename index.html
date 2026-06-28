@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Aahh! Emoji</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .emoji {
+            font-size: clamp(1.5rem, 10vw, 5rem);
+            transition: transform 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-pink-50 h-screen flex flex-col justify-center items-center font-sans overflow-hidden">
+
+    <h1 class="text-2xl font-bold text-pink-600 mb-12 animate-bounce text-wrap text-center">Click on Emojis to say Goodnight Mydear! 👇</h1>
+
+    <!-- โซนตัวละคร -->
+    <div class="flex md:space-x-20 space-x-5 justify-center items-center">
+        <!-- ตัวละครที่ 1 (หันหน้าไปทางขวา) -->
+        <div id="char1" class="emoji">(ㅅ´ ˘ `)</div>
+        
+        <!-- ตัวละครที่ 2 (หันหน้าไปทางซ้าย) -->
+        <div id="char2" class="emoji transform -scale-x-100">(ㅅ´ ˘ `)</div>
+    </div>
+
+    <script>
+        const EMOJI_CLOSE = "(ㅅ´ ˘ `)";
+        const EMOJI_OPEN = "ヽ(°〇°)ﾉ"; // อ้าปาก
+
+        // ดึง DOM Elements
+        const char1 = document.getElementById('char1');
+        const char2 = document.getElementById('char2');
+
+        // สร้าง Web Audio API แทนการใช้ไฟล์ .mp3 เพื่อความสะดวกในการรันแบบไม่ต้องโหลดไฟล์ภายนอก
+        function playScreamSound() {
+            const audioAhh1 = new Audio('./ahh.mp3');
+            const audioAhh2 = new Audio('./ahh2.mp3');
+            const randomSound = Math.random() < 0.5 ? audioAhh1 : audioAhh2;
+            randomSound.play();
+        }
+
+        // ตัวแปรควบคุม State เพื่อป้องกันการคลิกซ้อนขณะกำลังเล่น
+        let isPlaying = false;
+
+        async function startSequence(clickedFirst, followedSecond) {
+            if (isPlaying) return;
+            isPlaying = true;
+
+            // 1. ตัวแรกอ้าปาก + ร้องเสียงอ๊ากก 1 วิ
+            clickedFirst.textContent = EMOJI_OPEN;
+            playScreamSound();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // 2. ตัวที่สองอ้าปากตาม + ร้องเสียงอ๊ากก 1 วิ
+            followedSecond.textContent = EMOJI_OPEN;
+            playScreamSound();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // 3. ทั้งคู่ค้างไว้รวมกัน 3 วิ (นับจากตัวแรกเริ่ม หรือหลังจากตัวสองเปิดเสร็จ)
+            // ตามโจทย์: เมื่อทั้ง 2 ตัวอ้าปากครบ 3 วิ (รอเพิ่มอีก 2 วิ เพื่อให้ตัวสองอ้าปากครบ 3 วิพอดี)
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 4. หุบปากพร้อมกัน
+            clickedFirst.textContent = EMOJI_CLOSE;
+            followedSecond.textContent = EMOJI_CLOSE;
+
+            isPlaying = false;
+        }
+
+        // Event Listeners
+        char1.addEventListener('click', () => {
+            startSequence(char1, char2);
+        });
+
+        char2.addEventListener('click', () => {
+            startSequence(char2, char1);
+        });
+    </script>
+</body>
+</html>
