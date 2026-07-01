@@ -22,7 +22,7 @@
     <!-- โซนตัวละคร -->
     <div class="flex md:space-x-20 space-x-5 justify-center items-center">
         <!-- ตัวละครที่ 1 (หันหน้าไปทางขวา) -->
-        <div id="char1" class="emoji">(ㅅ´ ˘ `)</div>
+        <div id="char1" class="emoji">(❀´ ˘ `)</div>
         
         <!-- ตัวละครที่ 2 (หันหน้าไปทางซ้าย) -->
         <div id="char2" class="emoji transform -scale-x-100">(ㅅ´ ˘ `)</div>
@@ -30,6 +30,7 @@
 
     <script>
         const EMOJI_CLOSE = "(ㅅ´ ˘ `)";
+        const ENOJI_CLOSE_GIRL = "(❀´ ˘ `)";
         const EMOJI_OPEN = "ヽ(°〇°)ﾉ"; // อ้าปาก
 
         // ดึง DOM Elements
@@ -37,11 +38,12 @@
         const char2 = document.getElementById('char2');
 
         // สร้าง Web Audio API แทนการใช้ไฟล์ .mp3 เพื่อความสะดวกในการรันแบบไม่ต้องโหลดไฟล์ภายนอก
-        function playScreamSound() {
-            const audioAhh1 = new Audio('./ahh.mp3');
-            const audioAhh2 = new Audio('./ahh2.mp3');
-            const randomSound = Math.random() < 0.5 ? audioAhh1 : audioAhh2;
-            randomSound.play();
+        function playScreamSound(isFemale) {
+            const soundFiles = isFemale
+                ? ['./m_ahh1.mp3', './m_ahh2.mp3']
+                : ['./ahh.mp3', './ahh2.mp3'];
+            const audio = new Audio(soundFiles[Math.random() < 0.5 ? 0 : 1]);
+            audio.play();
         }
 
         // ตัวแปรควบคุม State เพื่อป้องกันการคลิกซ้อนขณะกำลังเล่น
@@ -51,23 +53,21 @@
             if (isPlaying) return;
             isPlaying = true;
 
-            // 1. ตัวแรกอ้าปาก + ร้องเสียงอ๊ากก 1 วิ
+            const isFirstFemale = clickedFirst.id === 'char1';
+            const isSecondFemale = followedSecond.id === 'char1';
+
             clickedFirst.textContent = EMOJI_OPEN;
-            playScreamSound();
+            playScreamSound(isFirstFemale);
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // 2. ตัวที่สองอ้าปากตาม + ร้องเสียงอ๊ากก 1 วิ
             followedSecond.textContent = EMOJI_OPEN;
-            playScreamSound();
+            playScreamSound(isSecondFemale);
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // 3. ทั้งคู่ค้างไว้รวมกัน 3 วิ (นับจากตัวแรกเริ่ม หรือหลังจากตัวสองเปิดเสร็จ)
-            // ตามโจทย์: เมื่อทั้ง 2 ตัวอ้าปากครบ 3 วิ (รอเพิ่มอีก 2 วิ เพื่อให้ตัวสองอ้าปากครบ 3 วิพอดี)
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // 4. หุบปากพร้อมกัน
-            clickedFirst.textContent = EMOJI_CLOSE;
-            followedSecond.textContent = EMOJI_CLOSE;
+            char1.textContent = ENOJI_CLOSE_GIRL
+            char2.textContent = EMOJI_CLOSE
 
             isPlaying = false;
         }
